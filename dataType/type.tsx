@@ -16,10 +16,15 @@ export type MembersType = {
   };
 };
 
+export type CategoryType = {
+  name: string;
+} & MicroCMSListContent;
+
 export type NewsType = {
   id: string;
   title: string;
   description: string;
   content: string;
   thumbnail: MicroCMSImage;
+  category: CategoryType;
 } & MicroCMSListContent;

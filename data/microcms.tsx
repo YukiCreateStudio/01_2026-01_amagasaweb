@@ -39,3 +39,15 @@ export const getCategoryDetail = async (
   });
   return detailData;
 };
+
+// NewsDetailデータを取得
+export const getNewsDetail = async (
+  contentId: string,
+  queries?: MicroCMSQueries
+) => {
+  const detailData = await client.getListDetail({
+    endpoint: "news",
+    contentId,
+  });
+  return detailData;
+};
