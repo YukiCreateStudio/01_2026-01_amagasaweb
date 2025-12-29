@@ -10,6 +10,7 @@ type Props = {
 };
 
 export default function Article({ news }: Props) {
+
   return (
     <main>
       <h1 className={styles.title}>{news.title}</h1>
@@ -33,9 +34,12 @@ export default function Article({ news }: Props) {
         />
       )}
       <div
-        dangerouslySetInnerHTML={{ __html: news.content }}
         className={styles.content}
+        dangerouslySetInnerHTML={{
+          __html: news.contents,
+        }}
       />
     </main>
+
   );
 }

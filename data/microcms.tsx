@@ -48,6 +48,7 @@ export const getNewsDetail = async (
   const detailData = await client.getListDetail({
     endpoint: "news",
     contentId,
+    queries,
   });
   return detailData;
 };
