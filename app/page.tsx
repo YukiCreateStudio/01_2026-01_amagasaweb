@@ -5,11 +5,12 @@ import ButtonLink from "./_component/ButtonLink";
 import { getNewsList } from "@/data/microcms";
 import NewsList from "./_component/NewsList";
 
+export const revalidate = 1;
 
 export default async function Home() {
-  const {contents:news} = await getNewsList({
-    limit:1,
-  })
+  const { contents: news } = await getNewsList({
+    limit: 1,
+  });
   return (
     <>
       <section className={styles.top}>
@@ -26,10 +27,8 @@ export default async function Home() {
         />
       </section>
       <section className={styles.news}>
-        <h2 className={styles.newsTitle}>
-          News
-        </h2>
-        <NewsList news={news}/>
+        <h2 className={styles.newsTitle}>News</h2>
+        <NewsList news={news} />
         <div className={styles.newsLink}>
           <ButtonLink href="/news">もっとみる</ButtonLink>
         </div>
