@@ -5,6 +5,7 @@ import Header from "./_component/Header";
 import Footer from "./_component/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
+export const revalidate = 1;
 
 export const metadata: Metadata = {
   title: "test用サイト",
