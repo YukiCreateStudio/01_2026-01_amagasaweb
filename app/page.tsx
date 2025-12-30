@@ -5,6 +5,7 @@ import ButtonLink from "./_component/ButtonLink";
 import { getNewsList } from "@/data/microcms";
 import NewsList from "./_component/NewsList";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
