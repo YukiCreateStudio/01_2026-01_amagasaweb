@@ -1,7 +1,6 @@
 import {
   MicroCMSListContent,
   MicroCMSImage,
-  MicroCMSClient,
 } from "microcms-js-sdk";
 
 export type MembersType = {

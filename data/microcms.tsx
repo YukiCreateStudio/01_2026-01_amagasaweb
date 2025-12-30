@@ -1,8 +1,6 @@
 import { createClient, MicroCMSContentId } from "microcms-js-sdk";
 import {
   MicroCMSQueries,
-  MicroCMSListContent,
-  MicroCMSImage,
 } from "microcms-js-sdk";
 
 // MicroCMSのクライアント設定

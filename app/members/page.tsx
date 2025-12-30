@@ -1,4 +1,4 @@
-import { MembersType } from "@/data/member";
+import { MembersType } from "@/dataType/type";
 import { members } from "@/data/member";
 import styles from "./page.module.css";
 import Image from "next/image";

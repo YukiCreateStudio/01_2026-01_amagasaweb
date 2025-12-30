@@ -7,6 +7,7 @@ import SearchField from "../_component/SearchField";
 export default async function Page() {
   const { contents: news, totalCount } = await getNewsList({
     limit: NEWS_LIMIT,
+    
   });
   return (
     <>
