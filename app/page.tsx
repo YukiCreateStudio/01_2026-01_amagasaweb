@@ -5,7 +5,7 @@ import ButtonLink from "./_component/ButtonLink";
 import { getNewsList } from "@/data/microcms";
 import NewsList from "./_component/NewsList";
 
-export const revalidate = 1;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { contents: news } = await getNewsList({
