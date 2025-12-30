@@ -1,7 +1,5 @@
 import { createClient, MicroCMSContentId } from "microcms-js-sdk";
-import {
-  MicroCMSQueries,
-} from "microcms-js-sdk";
+import { MicroCMSQueries } from "microcms-js-sdk";
 
 // MicroCMSのクライアント設定
 
@@ -23,6 +21,9 @@ export const getNewsList = async (queries?: MicroCMSQueries) => {
   const listData = await client.getList({
     endpoint: "news",
     queries,
+    customRequestInit: {
+      next: { revalidate: 1 },
+    },
   });
   return listData;
 };
@@ -34,6 +35,9 @@ export const getCategoryDetail = async (
   const detailData = await client.getListDetail({
     endpoint: "categories",
     contentId,
+    customRequestInit: {
+      next: { revalidate: 1 },
+    },
   });
   return detailData;
 };
@@ -47,6 +51,9 @@ export const getNewsDetail = async (
     endpoint: "news",
     contentId,
     queries,
+    customRequestInit: {
+      next: { revalidate: 1 },
+    },
   });
   return detailData;
 };
