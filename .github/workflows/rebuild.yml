@@ -1,0 +1,14 @@
+name: Scheduled Rebuild
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # 30分ごと
+  workflow_dispatch:         # 手動実行用
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages Build
+        run: |
+          curl -X POST "${{ secrets.CF_BUILD_HOOK }}"
