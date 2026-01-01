@@ -57,3 +57,17 @@ export const getNewsDetail = async (
   });
   return detailData;
 };
+
+// ニュースの全データ取得
+export const getAllNewsList = async () => {
+  const listData = await client.getAllContents({
+    endpoint: "news",
+  });
+  return listData;
+};
+export const getAllCategoryList = async () => {
+  const listData = await client.getAllContents({
+    endpoint: "categories",
+  });
+  return listData;
+};

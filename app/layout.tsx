@@ -5,11 +5,29 @@ import Header from "./_component/Header";
 import Footer from "./_component/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
-export const revalidate = 1;
+const siteUrl = "https://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "test用サイト",
-  description: "年末勤務に作成した練習用サイト",
+  metadataBase: new URL(siteUrl),
+  title: {
+    template: "%s | test用サイト",
+    default: "test用サイト",
+  },
+  description:
+    "「Next.js+ヘッドレスCMSではじめる！簡単・モダンWebサイト製作入門」で作成されるサイトです。",
+  openGraph: {
+    title: {
+      template: "%s | test用サイト",
+      default: "test用サイト",
+    },
+    description:
+      "「Next.js+ヘッドレスCMSではじめる！簡単・モダンWebサイト製作入門」で作成されるサイトです。",
+    siteName: "test用サイト",
+    images: ["/ogp.png"],
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export default function RootLayout({
