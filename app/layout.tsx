@@ -5,7 +5,7 @@ import Header from "./_component/Header";
 import Footer from "./_component/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
-const siteUrl = "https://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

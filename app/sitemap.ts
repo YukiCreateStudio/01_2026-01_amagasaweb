@@ -1,7 +1,11 @@
 import { MetadataRoute } from "next";
 import { getAllNewsList, getAllCategoryList } from "@/data/microcms";
 
-const buildUrl = (path?: string) => `https://localhost:3000${path ?? ""}`;
+export const runtime = "edge";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
+
+const buildUrl = (path?: string) => `${siteUrl}${path ?? ""}`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const newsContents = await getAllNewsList();
