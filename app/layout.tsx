@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./_component/Header";
 import Footer from "./_component/Footer";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"] });
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
@@ -42,6 +43,7 @@ export default function RootLayout({
         {children}
         <Footer />
       </body>
+      <GoogleTagManager gtmId="GTM-P33D79VJ" />
     </html>
   );
 }

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import Link from "next/link";
 import ButtonLink from "./_component/ButtonLink";
 import { getNewsList } from "@/data/microcms";
 import NewsList from "./_component/NewsList";
