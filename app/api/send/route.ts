@@ -44,6 +44,7 @@
 //   }
 // }
 
+export const runtime = "edge";
 import { EmailTemplate } from "@/app/_component/EmailTemplate";
 import { Resend } from "resend";
 
