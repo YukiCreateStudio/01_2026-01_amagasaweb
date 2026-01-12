@@ -5,17 +5,17 @@ export default function ContactForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const form = e.currentTarget;
+    const formData = new FormData(e.currentTarget);
 
     const res = await fetch("/api/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        lastname: form.lastname.value,
-        firstname: form.firstname.value,
-        company: form.company.value,
-        email: form.email.value,
-        message: form.message.value,
+        lastname: formData.get("lastname"),
+        firstname: formData.get("firstname"),
+        company: formData.get("company"),
+        email: formData.get("email"),
+        message: formData.get("message"),
       }),
     });
 
@@ -70,17 +70,12 @@ export default function ContactForm() {
           id="email"
           name="email"
         />
-
       </div>
       <div className={styles.item}>
         <label className={styles.label} htmlFor="message">
           メッセージ
         </label>
-        <textarea
-          className={styles.textarea}
-          id="message"
-          name="message"
-        />
+        <textarea className={styles.textarea} id="message" name="message" />
       </div>
       <div className={styles.actions}>
         <button type="submit" className={styles.button}>
