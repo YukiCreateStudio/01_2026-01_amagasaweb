@@ -1,4 +1,7 @@
 //ここはブラウザではなくサーバで実行されるAPIルート(サーバーサイドで動くAPIエンドポイント)
+
+export const runtime = "edge";
+
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { contactSchema } from "@/schemas/schema";
