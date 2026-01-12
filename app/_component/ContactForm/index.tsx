@@ -50,6 +50,14 @@ export default function ContactForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      {/* Honeypot（人には見えない） */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        style={{ display: "none" }}
+      />
       <div className={styles.horizontal}>
         <div className={styles.item}>
           <label className={styles.label} htmlFor="lastname">
