@@ -39,11 +39,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
+        <GoogleTagManager gtmId="GTM-P33D79VJ" />
         <Header />
         {children}
         <Footer />
       </body>
-      <GoogleTagManager gtmId="GTM-P33D79VJ" />
     </html>
   );
 }
