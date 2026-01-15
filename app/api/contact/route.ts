@@ -11,11 +11,10 @@ import { contactSchema } from "@/schemas/schema";
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function POST(req: NextRequest) {
-
   try {
     const json = await req.json();
 
-     //Honeypot
+    //Honeypot
     if (json.website) {
       // botが入力したと判断
       return NextResponse.json({ error: "不正な送信です" }, { status: 400 });
@@ -27,7 +26,8 @@ export async function POST(req: NextRequest) {
     // Resendでメール送信(管理者宛メール)
     await resend.emails.send({
       from: "テストサイト <onboarding@resend.dev>",
-      to: "自分 <delivered@resend.dev>",
+      to: "yuki.createstudio@gmail.com",
+      replyTo: data.email,
       subject: `${data.lastname}様から、お問い合わせがありました`,
       text: `
         氏　名: ${data.lastname}${data.firstname}様
