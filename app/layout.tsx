@@ -29,6 +29,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
+  //動作確認・実装テスト専用の記述（※本番運用時は削除すること）
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({

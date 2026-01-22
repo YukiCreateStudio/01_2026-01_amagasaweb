@@ -25,13 +25,13 @@ export async function POST(req: NextRequest) {
 
     // Resendでメール送信(管理者宛メール)
     await resend.emails.send({
-      from: "テストサイト <onboarding@resend.dev>",
+      from: "テストサイト <info@amagasa-web.jp>",
       to: "yuki.createstudio@gmail.com",
       replyTo: data.email,
       subject: `${data.lastname}様から、お問い合わせがありました`,
       text: `
-        氏　名: ${data.lastname}${data.firstname}様
-        会社名: ${data.company ?? "-"}
+        氏　名: ${data.lastname}${data.firstname}　様
+        会社名: ${data.company ?? "-"}　様
         メール: ${data.email}
         内　容:
         　${data.message}
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // ② 自動返信メール（ユーザー宛）
     await resend.emails.send({
-      from: "テストサイト <onboarding@resend.dev>",
+      from: "テストサイト <noreply@amagasa-web.jp>",
       to: data.email, // ★ ユーザーのメールアドレス
       subject: "【自動返信】お問い合わせありがとうございます",
       html: `
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
           <p>お問い合わせありがとうございます。</p>
           <p>以下の内容で承りました：</p>
           <ul>
-            <li>会社名: ${data.company ?? "-"}</li>
+            <li>会社名: ${data.company ?? "-"}　様</li>
             <li>メール: ${data.email}</li>
             <li>メッセージ: ${data.message}</li>
           </ul>
