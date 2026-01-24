@@ -2,12 +2,12 @@ import { z } from "zod";
 
 export const contactSchema = z.object({
   website: z.string().optional(),
-  lastname: z.string().trim().min(1, "姓を入力してください").max(50),
-  firstname: z.string().trim().min(1, "名を入力してください").max(50),
+  lastname: z.string().trim().min(1, "姓を入力してください").max(10),
+  firstname: z.string().trim().min(1, "名を入力してください").max(10),
   company: z
     .string()
     .trim()
-    .max(100)
+    .max(40)
     .optional()
     .transform((v) => (v === "" ? undefined : v)),
     //optional()は空文字を除外しないため、trim()しても""がそのまま通る。未入力と空欄が区別されデータが汚れるため、空文字をundefinedに変換する設計が実務向き。

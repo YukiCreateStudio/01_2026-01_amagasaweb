@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from "./index.module.css";
+import { SuccessMessage } from "../SuccessMessage";
 
 type FieldErrors = {
   lastname?: string;
@@ -9,6 +10,13 @@ type FieldErrors = {
   email?: string;
   message?: string;
 };
+const FIELD_ORDER = [
+  "lastname",
+  "firstname",
+  "company",
+  "email",
+  "message",
+] as const;
 
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +25,10 @@ export default function ContactForm() {
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // ← 超重要
+    e.preventDefault();
+
+    // 1. 重複送信ガード
+    if (isSubmitting || success) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -36,8 +47,6 @@ export default function ContactForm() {
       website: String(formData.get("website") ?? ""), // honeypot
     };
 
-    console.log(data); // ← まずはここで確認
-
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -45,130 +54,188 @@ export default function ContactForm() {
         body: JSON.stringify(data),
       });
 
-      console.log("res:", res);
-
       const result = await res.json();
+
       if (!res.ok) {
         // ZodError対応
         if (Array.isArray(result?.errors)) {
           const fe: FieldErrors = {};
-          result.errors.forEach((err: any) => {
+          result.errors.forEach((err: { path?: string[]; message: string }) => {
             const field = err.path?.[0];
             if (field) fe[field as keyof FieldErrors] = err.message;
           });
+
           setFieldErrors(fe);
+
+          // 最初のバリデーションエラー項目へスクロール & フォーカス
+          const firstErrorField = FIELD_ORDER.find(
+            (field) => fe[field as keyof FieldErrors]
+          );
+          if (firstErrorField) {
+            const el = form.querySelector(
+              `[name="${firstErrorField}"]`
+            ) as HTMLElement | null;
+            el?.scrollIntoView({ behavior: "smooth", block: "center" });
+            el?.focus();
+          }
+
           return;
         }
-        setError(result.error || "送信に失敗しました");
+        setError(result.error || "送信に失敗しました。内容をご確認ください。");
         return;
       }
 
+      //送信成功
       setSuccess(true);
       setFieldErrors({});
       form.reset(); // 送信後フォームをリセット
     } catch (err) {
-      console.error(err);
+      console.error("Submission error:", err);
+      setError(
+        "ネットワークエラーが発生しました。時間を置いて再度お試しください。"
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // 2. 成功時は完了画面を表示（二重送信の物理的防止）
+  if (success) {
+    return <SuccessMessage onReset={() => setSuccess(false)} />;
+  }
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      {/* Honeypot（人には見えない） */}
-      <input
-        type="text"
-        name="website"
-        tabIndex={-1}
-        autoComplete="off"
-        style={{ display: "none" }}
-      />
-      <div className={styles.horizontal}>
-        <div className={styles.item}>
-          <label className={styles.label} htmlFor="lastname">
-            姓
-          </label>
-          <input
-            className={styles.textfield}
-            type="text"
-            id="lastname"
-            name="lastname"
-            required
-            maxLength={10}
-          />
-          {fieldErrors.lastname && (
-            <p className={styles.error}>{fieldErrors.lastname}</p>
-          )}
-        </div>
-        <div className={styles.item}>
-          <label className={styles.label} htmlFor="firstname">
-            名
-          </label>
-          <input
-            className={styles.textfield}
-            type="text"
-            id="firstname"
-            name="firstname"
-            required
-            maxLength={10}
-          />
-          {fieldErrors.firstname && (
-            <p className={styles.error}>{fieldErrors.firstname}</p>
-          )}
-        </div>
+    <>
+      <div className={styles.container}>
+        <p className={styles.text}>
+          ご質問、ご相談は下記フォームよりお問い合わせください。
+          <br />
+          内容確認後、担当者より通常3営業日以内にご連絡いたします。
+        </p>
       </div>
-      <div className={styles.item}>
-        <label className={styles.label} htmlFor="company">
-          会社名
-        </label>
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        {/* Honeypot（人には見えない） */}
         <input
-          className={styles.textfield}
           type="text"
-          id="company"
-          name="company"
-          maxLength={40}
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          style={{ display: "none" }}
         />
-      </div>
-      <div className={styles.item}>
-        <label className={styles.label} htmlFor="email">
-          メールアドレス
-        </label>
-        <input
-          className={styles.textfield}
-          type="email"
-          id="email"
-          name="email"
-          required
-          maxLength={254}
-        />
-        {fieldErrors.email && (
-          <p className={styles.error}>{fieldErrors.email}</p>
-        )}
-      </div>
-      <div className={styles.item}>
-        <label className={styles.label} htmlFor="message">
-          メッセージ
-        </label>
-        <textarea
-          className={styles.textarea}
-          id="message"
-          name="message"
-          required
-          maxLength={1000}
-        />
-        {fieldErrors.message && (
-          <p className={styles.error}>{fieldErrors.message}</p>
-        )}
-      </div>
+        <div className={styles.horizontal}>
+          <div className={styles.item}>
+            <label className={styles.label} htmlFor="lastname">
+              姓
+            </label>
+            <input
+              className={styles.textfield}
+              type="text"
+              id="lastname"
+              name="lastname"
+              required
+              maxLength={10}
+              // アクセシビリティ対応
+              aria-invalid={!!fieldErrors.lastname}
+              aria-describedby={
+                fieldErrors.lastname ? "lastname-error" : undefined
+              }
+            />
+            {fieldErrors.lastname && (
+              <p className={styles.error} id="lastname-error">
+                {fieldErrors.lastname}
+              </p>
+            )}
+          </div>
 
-      <div className={styles.actions}>
-        <button type="submit" className={styles.button} disabled={isSubmitting}>
-          {isSubmitting ? "送信中" : "送信する"}
-        </button>
-      </div>
+          <div className={styles.item}>
+            <label className={styles.label} htmlFor="firstname">
+              名
+            </label>
+            <input
+              className={styles.textfield}
+              type="text"
+              id="firstname"
+              name="firstname"
+              required
+              maxLength={10}
+              // アクセシビリティ対応
+              aria-invalid={!!fieldErrors.firstname}
+              aria-describedby={
+                fieldErrors.firstname ? "firstname-error" : undefined
+              }
+            />
+            {fieldErrors.firstname && (
+              <p className={styles.error} id="firstname-error">
+                {fieldErrors.firstname}
+              </p>
+            )}
+          </div>
+        </div>
 
-      {error && <p className={styles.error}>{error}</p>}
-      {success && <p className={styles.success}>送信が完了しました。</p>}
-    </form>
+        <div className={styles.item}>
+          <label className={styles.label} htmlFor="company">
+            会社名
+          </label>
+          <input
+            className={styles.textfield}
+            type="text"
+            id="company"
+            name="company"
+            maxLength={40}
+          />
+        </div>
+
+        <div className={styles.item}>
+          <label className={styles.label} htmlFor="email">
+            メールアドレス
+          </label>
+          <input
+            className={styles.textfield}
+            type="email"
+            id="email"
+            name="email"
+            required
+            maxLength={254}
+            // アクセシビリティ対応
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? "email-error" : undefined}
+          />
+          {fieldErrors.email && (
+            <p className={styles.error} id="email-error">
+              {fieldErrors.email}
+            </p>
+          )}
+        </div>
+
+        <div className={styles.item}>
+          <label className={styles.label} htmlFor="message">
+            メッセージ
+          </label>
+          <textarea
+            className={styles.textarea}
+            id="message"
+            name="message"
+            required
+            maxLength={1000}
+            // アクセシビリティ対応
+            aria-invalid={!!fieldErrors.message}
+            aria-describedby={fieldErrors.message ? "message-error" : undefined}
+          />
+          {fieldErrors.message && (
+            <p className={styles.error} id="message-error">
+              {fieldErrors.message}
+            </p>
+          )}
+        </div>
+
+        <div className={styles.actions}>
+          <button type="submit" className={styles.button} disabled={isSubmitting}>
+            {isSubmitting ? "送信中..." : "送信する"}
+          </button>
+        </div>
+
+        {error && <p className={styles.error} role="alert">{error}</p>}
+      </form>
+    </>
   );
 }
