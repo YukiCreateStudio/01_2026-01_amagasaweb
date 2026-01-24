@@ -1,11 +1,16 @@
-//ここはブラウザではなくサーバで実行されるAPIルート(サーバーサイドで動くAPIエンドポイント)
-
-// ① Edge Runtimeで動くAPIルート
+// ここはブラウザではなくサーバで実行されるAPIルート
+// Edge Runtimeで動くAPIエンドポイント
 export const runtime = "edge";
 
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { ZodError } from "zod";
 import { contactSchema } from "@/schemas/schema";
+
+// 環境変数チェック
+if (!process.env.RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY is not set");
+}
 
 // Resendのインスタンス（APIキーは環境変数から取得）
 const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -14,13 +19,20 @@ export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
 
-    //Honeypot
-    if (json.website) {
-      // botが入力したと判断
+    /*
+     * Honeypotチェック
+     * ・文字が入力されていたらbotと判定
+     * ・null / undefined / 空文字は誤判定防止のため除外
+     */
+    if (typeof json.website === "string" && json.website.trim() !== "") {
       return NextResponse.json({ error: "不正な送信です" }, { status: 400 });
     }
 
-    // Zodでバリデーション（入力チェック）
+    /**
+     * Zodでバリデーション
+     * ・required / optional の最終判断はサーバで行う
+     * ・trim / max / min などもここで保証
+     */
     const data = contactSchema.parse(json);
 
     // Resendでメール送信(管理者宛メール)
@@ -29,13 +41,38 @@ export async function POST(req: NextRequest) {
       to: "yuki.createstudio@gmail.com",
       replyTo: data.email,
       subject: `${data.lastname}様から、お問い合わせがありました`,
-      text: `
-        氏　名: ${data.lastname}${data.firstname}　様
-        会社名: ${data.company ?? "-"}　様
-        メール: ${data.email}
-        内　容:
-        　${data.message}
-      `,
+      html: `
+      <div style="font-family: sans-serif; line-height: 1.6;">
+        <h2>お問い合わせが届きました</h2>
+        <table style="border-collapse: collapse;">
+          <tr>
+            <th style="text-align:left; padding:4px 8px;">氏名</th>
+            <td style="padding:4px 8px;">
+              ${data.lastname} ${data.firstname} 様
+            </td>
+          </tr>
+          <tr>
+            <th style="text-align:left; padding:4px 8px;">会社名</th>
+            <td style="padding:4px 8px;">
+              ${data.company ?? "-"}
+            </td>
+          </tr>
+          <tr>
+            <th style="text-align:left; padding:4px 8px;">メール</th>
+            <td style="padding:4px 8px;">
+              ${data.email}
+            </td>
+          </tr>
+        </table>
+        <h3 style="margin-top:16px;">メッセージ内容</h3>
+        <pre style="
+          background:#f6f6f6;
+          padding:12px;
+          white-space:pre-wrap;
+          border-radius:4px;
+        ">${data.message}</pre>
+      </div>
+    `,
     });
 
     // ② 自動返信メール（ユーザー宛）
@@ -64,17 +101,25 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "送信完了しました" });
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
 
-    // Zodエラーかどうかで分ける
-    if (err.name === "ZodError") {
+    /**
+     * Zodエラー（入力不備）
+     */
+
+    if (err instanceof ZodError) {
       return NextResponse.json(
-        { error: err.errors.map((e: any) => e.message).join("\n") },
+        {
+          errors: err.issues,
+        },
         { status: 400 }
       );
     }
 
+    /**
+     * それ以外（サーバ・外部APIエラー）
+     */
     return NextResponse.json({ error: "送信に失敗しました" }, { status: 500 });
   }
 }

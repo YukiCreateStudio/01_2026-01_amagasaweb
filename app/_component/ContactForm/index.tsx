@@ -3,9 +3,17 @@
 import { useState } from "react";
 import styles from "./index.module.css";
 
+type FieldErrors = {
+  lastname?: string;
+  firstname?: string;
+  email?: string;
+  message?: string;
+};
+
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -13,16 +21,19 @@ export default function ContactForm() {
 
     setIsSubmitting(true);
     setError(null);
+    setFieldErrors({});
     setSuccess(false);
 
     const form = e.currentTarget;
+    const formData = new FormData(form);
 
     const data = {
-      lastname: form.lastname.value,
-      firstname: form.firstname.value,
-      company: form.company.value,
-      email: form.email.value,
-      message: form.message.value,
+      lastname: String(formData.get("lastname") ?? ""),
+      firstname: String(formData.get("firstname") ?? ""),
+      company: String(formData.get("company") ?? ""),
+      email: String(formData.get("email") ?? ""),
+      message: String(formData.get("message") ?? ""),
+      website: String(formData.get("website") ?? ""), // honeypot
     };
 
     console.log(data); // ← まずはここで確認
@@ -37,12 +48,26 @@ export default function ContactForm() {
       console.log("res:", res);
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "送信に失敗しました");
+      if (!res.ok) {
+        // ZodError対応
+        if (Array.isArray(result?.errors)) {
+          const fe: FieldErrors = {};
+          result.errors.forEach((err: any) => {
+            const field = err.path?.[0];
+            if (field) fe[field as keyof FieldErrors] = err.message;
+          });
+          setFieldErrors(fe);
+          return;
+        }
+        setError(result.error || "送信に失敗しました");
+        return;
+      }
 
       setSuccess(true);
+      setFieldErrors({});
       form.reset(); // 送信後フォームをリセット
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -68,7 +93,12 @@ export default function ContactForm() {
             type="text"
             id="lastname"
             name="lastname"
+            required
+            maxLength={10}
           />
+          {fieldErrors.lastname && (
+            <p className={styles.error}>{fieldErrors.lastname}</p>
+          )}
         </div>
         <div className={styles.item}>
           <label className={styles.label} htmlFor="firstname">
@@ -79,7 +109,12 @@ export default function ContactForm() {
             type="text"
             id="firstname"
             name="firstname"
+            required
+            maxLength={10}
           />
+          {fieldErrors.firstname && (
+            <p className={styles.error}>{fieldErrors.firstname}</p>
+          )}
         </div>
       </div>
       <div className={styles.item}>
@@ -91,6 +126,7 @@ export default function ContactForm() {
           type="text"
           id="company"
           name="company"
+          maxLength={40}
         />
       </div>
       <div className={styles.item}>
@@ -102,13 +138,27 @@ export default function ContactForm() {
           type="email"
           id="email"
           name="email"
+          required
+          maxLength={254}
         />
+        {fieldErrors.email && (
+          <p className={styles.error}>{fieldErrors.email}</p>
+        )}
       </div>
       <div className={styles.item}>
         <label className={styles.label} htmlFor="message">
           メッセージ
         </label>
-        <textarea className={styles.textarea} id="message" name="message" />
+        <textarea
+          className={styles.textarea}
+          id="message"
+          name="message"
+          required
+          maxLength={1000}
+        />
+        {fieldErrors.message && (
+          <p className={styles.error}>{fieldErrors.message}</p>
+        )}
       </div>
 
       <div className={styles.actions}>
