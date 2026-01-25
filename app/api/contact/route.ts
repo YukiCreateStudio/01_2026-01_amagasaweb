@@ -37,29 +37,29 @@ export async function POST(req: NextRequest) {
 
     // Resendでメール送信(管理者宛メール)
     await resend.emails.send({
-      from: "テストサイト <info@amagasa-web.jp>",
-      to: "yuki.createstudio@gmail.com",
+      from: `テストサイト <${process.env.FROM_EMAIL}>`,
+      to: process.env.ADMIN_EMAIL!,
       replyTo: data.email,
-      subject: `${data.lastname}様からのお問い合わせ`,
+      subject: `【重要】${data.lastname}様からのお問い合わせ`,
       html: `
       <div style="font-family: sans-serif; line-height: 1.6;">
-        <h2>お問い合わせが届きました</h2>
+        <h3>お問い合わせが届きました</h3>
         <table style="border-collapse: collapse;">
           <tr>
-            <th style="text-align:left; padding:4px 8px;">氏名</th>
-            <td style="padding:4px 8px;">
+            <th style="text-align:left; padding:2px 8px;">氏名</th>
+            <td style="padding:2px 8px;">
               ${data.lastname} ${data.firstname} 様
             </td>
           </tr>
           <tr>
-            <th style="text-align:left; padding:4px 8px;">会社名</th>
-            <td style="padding:4px 8px;">
+            <th style="text-align:left; padding:2px 8px;">会社名</th>
+            <td style="padding:2px 8px;">
               ${data.company ?? "-"}
             </td>
           </tr>
           <tr>
-            <th style="text-align:left; padding:4px 8px;">メール</th>
-            <td style="padding:4px 8px;">
+            <th style="text-align:left; padding:2px 8px;">メール</th>
+            <td style="padding:2px 8px;">
               ${data.email}
             </td>
           </tr>
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     // ② 自動返信メール（ユーザー宛）
     await resend.emails.send({
-      from: "テストサイト <noreply@amagasa-web.jp>",
+      from: `テストサイト <${process.env.NOREPLY_EMAIL}>`,
       to: data.email, // ★ ユーザーのメールアドレス
       subject: "【自動返信】お問い合わせありがとうございます",
       html: `
@@ -94,8 +94,9 @@ export async function POST(req: NextRequest) {
           <p>— テストサイト ー</p>
           <p>https://amagasa-web.jp</p>
           <p>無断転載を禁じます。</p>
-          <p>--------------------------------------</p>
-          <p>※本メールは送信専用のメールアドレスから送信しており、ご返信できませんのでご了承ください。</p>
+          <p>------------------------------------------</p>
+          <p>※本メールは送信専用のメールアドレスから送信しています。</p>
+          <p>　ご返信できませんのでご了承ください。</p>
         </div>
       `,
     });

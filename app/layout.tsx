@@ -29,10 +29,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteUrl,
   },
-  //動作確認・実装テスト専用の記述（※本番運用時は削除すること）
+  //動作確認・実装テスト専用の記述（※本番運用時はtrueすること）
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
 };
 
