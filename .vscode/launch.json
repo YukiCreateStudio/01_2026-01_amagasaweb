@@ -1,0 +1,20 @@
+{
+  // これはVS Codeで「デバッグ機能」を使うための設定ファイル
+  // 具体的には、プログラムを一行ずつ止めながら動作を確認したり（ブレークポイント）、変数の動きを追いかけたりするための「デバッガー」を起動するためのショートカット設定です。
+  // IntelliSense を使用して利用可能な属性を学べます。
+  // 既存の属性の説明をホバーして表示します。
+  // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: Node",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 9229,
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
