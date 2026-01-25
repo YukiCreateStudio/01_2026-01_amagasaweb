@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./index.module.css";
 import { SuccessMessage } from "../SuccessMessage";
+import { contactSchema } from "@/schemas/schema";
 
 type FieldErrors = {
   lastname?: string;
@@ -30,6 +31,7 @@ export default function ContactForm() {
     // 1. 重複送信ガード
     if (isSubmitting || success) return;
 
+    //初期化処理
     setIsSubmitting(true);
     setError(null);
     setFieldErrors({});
@@ -38,7 +40,8 @@ export default function ContactForm() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    const data = {
+    //rawデータの取得
+    const rawData = {
       lastname: String(formData.get("lastname") ?? ""),
       firstname: String(formData.get("firstname") ?? ""),
       company: String(formData.get("company") ?? ""),
@@ -47,48 +50,60 @@ export default function ContactForm() {
       website: String(formData.get("website") ?? ""), // honeypot
     };
 
+    // 1. フロントエンドバリデーション (safeParseを使用)
+    const result = contactSchema.safeParse(rawData);
+
+    if (!result.success) {
+      const fe: FieldErrors = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (field) fe[field as keyof FieldErrors] = issue.message;
+      });
+
+      setFieldErrors(fe);
+
+      // フォーカスとスクロールの処理
+      const firstErrorField = FIELD_ORDER.find(
+        (f) => fe[f as keyof FieldErrors]
+      );
+      if (firstErrorField) {
+        const el = form.querySelector(
+          `[name="${firstErrorField}"]`
+        ) as HTMLElement | null;
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        el?.focus();
+      }
+      setIsSubmitting(false);
+      return; // バリデーション失敗時はここで終了
+    }
+
+    // 2. 通信処理 (try-catchで囲む)
     try {
+      // バリデーション済みのクリーンなデータ (result.data) を送信
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(result.data),
       });
 
-      const result = await res.json();
+      const responseData = await res.json();
 
       if (!res.ok) {
-        // ZodError対応
-        if (Array.isArray(result?.errors)) {
+        // API側でエラー（ZodError含む）が返った場合
+        if (Array.isArray(responseData?.errors)) {
           const fe: FieldErrors = {};
-          result.errors.forEach((err: { path?: string[]; message: string }) => {
+          responseData.errors.forEach((err: any) => {
             const field = err.path?.[0];
             if (field) fe[field as keyof FieldErrors] = err.message;
           });
-
           setFieldErrors(fe);
-
-          // 最初のバリデーションエラー項目へスクロール & フォーカス
-          const firstErrorField = FIELD_ORDER.find(
-            (field) => fe[field as keyof FieldErrors]
-          );
-          if (firstErrorField) {
-            const el = form.querySelector(
-              `[name="${firstErrorField}"]`
-            ) as HTMLElement | null;
-            el?.scrollIntoView({ behavior: "smooth", block: "center" });
-            el?.focus();
-          }
-
           return;
         }
-        setError(result.error || "送信に失敗しました。内容をご確認ください。");
-        return;
+        throw new Error(responseData.error || "送信に失敗しました。");
       }
 
-      //送信成功
       setSuccess(true);
-      setFieldErrors({});
-      form.reset(); // 送信後フォームをリセット
+      form.reset();
     } catch (err) {
       console.error("Submission error:", err);
       setError(
@@ -229,12 +244,20 @@ export default function ContactForm() {
         </div>
 
         <div className={styles.actions}>
-          <button type="submit" className={styles.button} disabled={isSubmitting}>
+          <button
+            type="submit"
+            className={styles.button}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "送信中..." : "送信する"}
           </button>
         </div>
 
-        {error && <p className={styles.error} role="alert">{error}</p>}
+        {error && (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
       </form>
     </>
   );

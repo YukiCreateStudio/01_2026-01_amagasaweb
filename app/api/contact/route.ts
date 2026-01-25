@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       from: "テストサイト <info@amagasa-web.jp>",
       to: "yuki.createstudio@gmail.com",
       replyTo: data.email,
-      subject: `${data.lastname}様から、お問い合わせがありました`,
+      subject: `${data.lastname}様からのお問い合わせ`,
       html: `
       <div style="font-family: sans-serif; line-height: 1.6;">
         <h2>お問い合わせが届きました</h2>
