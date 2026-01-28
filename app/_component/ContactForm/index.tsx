@@ -138,6 +138,7 @@ export default function ContactForm() {
           style={{ display: "none" }}
         />
         <div className={styles.horizontal}>
+
           <div className={styles.item}>
             <label className={styles.label} htmlFor="lastname">
               姓
@@ -155,11 +156,13 @@ export default function ContactForm() {
                 fieldErrors.lastname ? "lastname-error" : undefined
               }
             />
-            {fieldErrors.lastname && (
-              <p className={styles.error} id="lastname-error">
-                {fieldErrors.lastname}
-              </p>
-            )}
+            <div className={styles.errorfield}>
+              {fieldErrors.lastname && (
+                <p className={styles.error} id="lastname-error">
+                  {fieldErrors.lastname}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className={styles.item}>
@@ -179,11 +182,13 @@ export default function ContactForm() {
                 fieldErrors.firstname ? "firstname-error" : undefined
               }
             />
-            {fieldErrors.firstname && (
-              <p className={styles.error} id="firstname-error">
-                {fieldErrors.firstname}
-              </p>
-            )}
+            <div className={styles.errorfield}>
+              {fieldErrors.firstname && (
+                <p className={styles.error} id="firstname-error">
+                  {fieldErrors.firstname}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -198,6 +203,7 @@ export default function ContactForm() {
             name="company"
             maxLength={40}
           />
+          <div className={styles.errorfield}></div>
         </div>
 
         <div className={styles.item}>
@@ -215,11 +221,13 @@ export default function ContactForm() {
             aria-invalid={!!fieldErrors.email}
             aria-describedby={fieldErrors.email ? "email-error" : undefined}
           />
-          {fieldErrors.email && (
-            <p className={styles.error} id="email-error">
-              {fieldErrors.email}
-            </p>
-          )}
+         <div className={styles.errorfield}>
+            {fieldErrors.email && (
+              <p className={styles.error} id="email-error">
+                {fieldErrors.email}
+              </p>
+            )}
+         </div>
         </div>
 
         <div className={styles.item}>
@@ -236,11 +244,13 @@ export default function ContactForm() {
             aria-invalid={!!fieldErrors.message}
             aria-describedby={fieldErrors.message ? "message-error" : undefined}
           />
-          {fieldErrors.message && (
-            <p className={styles.error} id="message-error">
-              {fieldErrors.message}
-            </p>
-          )}
+          <div className={styles.errorfield}>
+            {fieldErrors.message && (
+              <p className={styles.error} id="message-error">
+                {fieldErrors.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className={styles.actions}>

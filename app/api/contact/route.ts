@@ -1,6 +1,6 @@
 // ここはブラウザではなくサーバで実行されるAPIルート
 // Edge Runtimeで動くAPIエンドポイント
-export const runtime = "edge";
+// export const runtime = "edge";
 
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";

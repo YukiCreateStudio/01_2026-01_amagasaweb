@@ -4,16 +4,18 @@ import { NEWS_LIMIT } from "@/app/_constants";
 import { getNewsList } from "@/data/microcms";
 
 type Props = {
-  searchParams: {
-    q: string;
-  };
+  searchParams: Promise<{
+    q?: string;
+  }>;
 };
 
 export default async function Page({ searchParams }: Props) {
-  console.log(searchParams.q);
+
+  const { q } = await searchParams;
+
   const { contents: news } = await getNewsList({
     limit: NEWS_LIMIT,
-    q: searchParams.q,
+    q: q,
   });
   return (
     <>

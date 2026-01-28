@@ -20,6 +20,7 @@ export default function HeroLayout({ title, sub }: Props) {
           alt=""
           width={4000}
           height={1200}
+          loading="eager"
         />
       </section>
     </>

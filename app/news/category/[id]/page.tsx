@@ -5,13 +5,16 @@ import { NEWS_LIMIT } from "@/app/_constants";
 import { getCategoryDetail, getNewsList } from "@/data/microcms";
 
 type Props = {
-  params: {
+  // params を Promise に変更
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export default async function Page({ params }: Props) {
-  const category = await getCategoryDetail(params.id);
+  // await で id を取り出す
+  const { id } = await params;
+  const category = await getCategoryDetail(id);
   const { contents: news, totalCount } = await getNewsList({
     limit: NEWS_LIMIT,
     filters: `category[equals]${category.id}`,

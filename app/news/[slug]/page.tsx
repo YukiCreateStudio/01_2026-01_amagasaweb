@@ -4,16 +4,22 @@ import { getNewsDetail } from "@/data/microcms";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+// params と searchParams を Promise 型に変更
 type Props = {
-  params: { slug: string };
-  searchParams: { dk?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ dk?: string }>;
 };
 
 export async function generateMetadata({
   params,
   searchParams,
 }: Props): Promise<Metadata> {
-  const data = await getNewsDetail(params.slug, { draftKey: searchParams.dk });
+// await で中身を取り出す
+  const { slug } = await params;
+  const { dk } = await searchParams;
+
+  const data = await getNewsDetail(slug, { draftKey: dk });
+
   return {
     title: data.title,
     description: data.description,
@@ -26,9 +32,14 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params, searchParams }: Props) {
-  const news = await getNewsDetail(params.slug, {
-    draftKey: searchParams.dk,
+  // await で中身を取り出す
+  const { slug } = await params;
+  const { dk } = await searchParams;
+
+  const news = await getNewsDetail(slug, {
+    draftKey: dk,
   }).catch(notFound);
+
   return (
     <>
       <Article news={news} />
