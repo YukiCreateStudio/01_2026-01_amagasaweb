@@ -1,5 +1,6 @@
 import HeroLayout from "../_component/HeroLayout";
 import SheetLayout from "../_component/SheetLayout";
+
 export const metadata = {
   title: "お問い合わせ",
 };
